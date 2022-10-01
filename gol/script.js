@@ -28,8 +28,8 @@ function getRandMatrix(b, h){
 }
 
 function setup(){
-    matrix = getRandMatrix(10,15);
-    matrix[12][8] = 2;
+    // matrix = getRandMatrix(10,15);
+    // matrix[12][8] = 2;
     createCanvas(side*matrix[0].length+1, side * matrix.length+1);
     background('#acacac');
     frameRate(fr);
