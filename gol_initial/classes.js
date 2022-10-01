@@ -1,141 +1,309 @@
-// Klasse Gras-Objekt
-// Sicht auf Nachbarfelder
-// Vermehrung nach 6 Runden
 class Grass{
-
     constructor(x, y){
-        // Position
         this.x = x;
         this.y = y;
-        // Rundenzähler
+        this.neighborPos = [
+            [this.x -1, this.y -1],
+            [this.x, this.y -1],
+            [this.x +1, this.y-1],
+            [this.x-1, this.y],
+            [this.x+1, this.y],
+            [this.x-1, this.y+1],
+            [this.x, this.y+1],
+            [this.x+1, this.y+1]
+        ];
         this.multiply = 0;
-        this.directions = [
-            // Positionen der Nachbarfelder
-            [this.x - 1, this.y - 1],
-            [this.x, this.y - 1],
-            [this.x + 1, this.y - 1],
-            [this.x - 1, this.y],
-            [this.x + 1, this.y],
-            [this.x - 1, this.y + 1],
-            [this.x, this.y + 1],
-            [this.x + 1, this.y + 1]
+    }
+
+    chooseFields(symbol){
+        let found = [];
+        for(let i = 0; i < this.neighborPos.length; i++){
+            let posArr = this.neighborPos[i];
+            let x = posArr[0];
+            let y = posArr[1];
+            if(x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length){
+                if(matrix[y][x] == symbol){
+                    found.push(posArr);
+                }
+            }
+            
+        }
+        return found;
+    }
+
+    mul(){
+        this.multiply++;
+        // wenn 5 Runden vorbei 
+        if(this.multiply >= 5){
+            // dann vermehren
+            // Schritt1:
+            let emptyFields = this.chooseFields(0);
+            if(emptyFields.length > 0){
+                let newPos = random(emptyFields);
+                let newX = newPos[0];
+                let newY = newPos[1];
+                // Schritt2:
+                let grasObj = new Grass(newX, newY);
+                grassArr.push(grasObj);
+                matrix[newY][newX] = 1;
+            }
+            this.multiply = 0;
+        }
+    }
+}
+
+class Grazer {
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+        this.neighborPos = [
+            [this.x -1, this.y -1],
+            [this.x, this.y -1],
+            [this.x +1, this.y-1],
+            [this.x-1, this.y],
+            [this.x+1, this.y],
+            [this.x-1, this.y+1],
+            [this.x, this.y+1],
+            [this.x+1, this.y+1]
+        ];
+        this.eatCounter = 0;
+        this.notEatCounter = 0;
+    }
+
+    updateNeighbors(){
+        this.neighborPos = [
+            [this.x -1, this.y -1],
+            [this.x, this.y -1],
+            [this.x +1, this.y-1],
+            [this.x-1, this.y],
+            [this.x+1, this.y],
+            [this.x-1, this.y+1],
+            [this.x, this.y+1],
+            [this.x+1, this.y+1]
         ];
     }
 
-    // Methoden - Verhalten
-    chooseCell(){
-        // alle leeren Nachbarfelder speichern in found-array
+    chooseFields(symbol){
+        this.updateNeighbors();
         let found = [];
-
-        // for-Schleife durch directions-array
-        for(let i in this.directions){
-            // i - index
-            // Position des Nachbarfeldes - Array
-            let posCellArr = this.directions[i];
-            let x = posCellArr[0];
-            let y = posCellArr[1];
-            // Spielfeldgrenzen festlegen
-            if(y >= 0 && y < matrix.length && x >= 0 && x < matrix[y].length){
-                // überprüfen, ob 0 oder 1 als Wert in Matrix steht
-                // Wert = 0 - leeres Feld
-                if( matrix[y][x] == 0 ){
-                    // leeres Feld wir speichern das
-                    found.push(posCellArr);
+        for(let i = 0; i < this.neighborPos.length; i++){
+            let posArr = this.neighborPos[i];
+            let x = posArr[0];
+            let y = posArr[1];
+            if(x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length){
+                if(matrix[y][x] == symbol){
+                    found.push(posArr);
                 }
             }
         }
-        return found;   
+        return found;
     }
 
-    // vermehren
-    mul(){
-        this.multiply++;
-        if(this.multiply >= 6){
-            // nun wird sich vermehrt, wenn ein leeres Nachbarfeld vorhanden ist
-            // console.log("gras objekt soll sich jetz vermehren");
-            // leere Nachbarfelder finden
-            let emptyCells = this.chooseCell();
-            // console.log("Leere Nachbarfelder: ", emptyCells);
-            
-            // ein zufälliges leeres Nachbarfeld finden
-            let theChosenField = random(emptyCells);
-            // console.log("Gewähltes Nachbarfeld: ", theChosenField);
+    eat(){
 
-            if(theChosenField){
-                // hole Position des Nachbarfeldes
-                let newX = theChosenField[0];
-                let newY = theChosenField[1];
-                // neues Gras-Objekt erstellen an der Position des Nachbarfeldes
-                let newGrassObj = new Grass(newX, newY);
-                // console.log("Neues Grasobjekt erstellt: ", newGrassObj);
-                
-                // Grasobj. dem grassArr hinzufügen
-                grassArr.push(newGrassObj);
-                // matrix aktualisieren ... 
-                //an der Stelle Nachbarfeld statt 0 eine 1 gespeichert
-                matrix[newY][newX] = 1;    
-                
+        let grassFields = this.chooseFields(1);
+        if(grassFields.length > 0){
+            
+            let grassPos = random(grassFields);
+            let newX = grassPos[0];
+            let newY = grassPos[1];
+            matrix[newY][newX]= 2;
+            matrix[this.y][this.x] = 0;
+            this.x = newX;
+            this.y = newY;
+            // fressen
+            for(let i=0; i< grassArr.length; i++){
+                let grObj = grassArr[i];
+                if(grObj.x == this.x && grObj.y == this.y){
+                    // lösche das grasObj
+                    grassArr.splice(i, 1); // index, wieviele Element löschen
+                    break;
+                }
             }
-            // rundenzähler zurücksetzen
-            this.multiply = 0;      
+            this.eatCounter++;
+            this.notEatCounter = 0;
+        }else{
+            this.eatCounter = 0;
+            this.notEatCounter++;
+            if(this.notEatCounter >= 5){
+                this.die();
+            }else{
+                this.move();
+            }
+            
+        }
+    }
+
+    die(){
+        matrix[this.y][this.x] = 0;
+        for(let i = 0; i < grazerArr.length; i++){
+            let grasfresserObj = grazerArr[i];
+            if(grasfresserObj.x == this.x && grasfresserObj.y == this.y){
+                grazerArr.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    move(){
+        let emptyFields = this.chooseFields(0);
+        if(emptyFields.length > 0){
+            //
+            let newPos = random(emptyFields);
+            let newX = newPos[0];
+            let newY = newPos[1];
+            matrix[newY][newX] = 2;
+            matrix[this.y][this.x] = 0;
+            this.x = newX;
+            this.y = newY;
+        }
+    }
+
+    mul(){
+        
+        // wenn 5 Runden vorbei 
+        if(this.eatCounter >= 5){
+            // dann vermehren
+            // Schritt1:
+            let emptyFields = this.chooseFields(0);
+            if(emptyFields.length > 0){
+                let newPos = random(emptyFields);
+                let newX = newPos[0];
+                let newY = newPos[1];
+                // Schritt2:
+                grazerArr.push(new Grazer(newX, newY));
+                matrix[newY][newX] = 2;
+            }
+            this.eatCounter = 0;
         }
     }
 }
 
-
-// Grasfresser Klasse
-class Grazer{
-// Attribute - Eigenschaften
-
-// Position
-// rundenzähler
-// Sicht auf die Nachbarfelder
-
-// neue Attribute
-// Lebensenergie - energy
-
+class Predator {
     constructor(x, y){
-        // Position
         this.x = x;
         this.y = y;
-        // Rundenzähler
-        this.multiply = 0;
-        // Lebensenergie
-        this.energy = 8;
-        this.directions = [];
+        this.neighborPos = [
+            [this.x -1, this.y -1],
+            [this.x, this.y -1],
+            [this.x +1, this.y-1],
+            [this.x-1, this.y],
+            [this.x+1, this.y],
+            [this.x-1, this.y+1],
+            [this.x, this.y+1],
+            [this.x+1, this.y+1]
+        ];
+        this.eatCounter = 0;
+        this.notEatCounter = 0;
     }
 
-    getNewCoordinates(){
-        this.directions = [
-            // Positionen der Nachbarfelder
-            [this.x - 1, this.y - 1],
-            [this.x, this.y - 1],
-            [this.x + 1, this.y - 1],
-            [this.x - 1, this.y],
-            [this.x + 1, this.y],
-            [this.x - 1, this.y + 1],
-            [this.x, this.y + 1],
-            [this.x + 1, this.y + 1]
+    updateNeighbors(){
+        this.neighborPos = [
+            [this.x -1, this.y -1],
+            [this.x, this.y -1],
+            [this.x +1, this.y-1],
+            [this.x-1, this.y],
+            [this.x+1, this.y],
+            [this.x-1, this.y+1],
+            [this.x, this.y+1],
+            [this.x+1, this.y+1]
         ];
     }
 
+    chooseFields(symbol){
+        this.updateNeighbors();
+        let found = [];
+        for(let i = 0; i < this.neighborPos.length; i++){
+            let posArr = this.neighborPos[i];
+            let x = posArr[0];
+            let y = posArr[1];
+            if(x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length){
+                if(matrix[y][x] == symbol){
+                    found.push(posArr);
+                }
+            }
+        }
+        return found;
+    }
 
+    eat(){
 
-// Methoden - Verhalten
-    // Nachbarfelder ansehen
-    chooseCell(symbol){
-        // hole Positionen der aktuelle Nachbarfelder
-        this.getNewCoordinates();
+        let grassFields = this.chooseFields(1);
+        if(grassFields.length > 0){
+            
+            let grassPos = random(grassFields);
+            let newX = grassPos[0];
+            let newY = grassPos[1];
+            matrix[newY][newX]= 2;
+            matrix[this.y][this.x] = 0;
+            this.x = newX;
+            this.y = newY;
+            // fressen
+            for(let i=0; i< grassArr.length; i++){
+                let grObj = grassArr[i];
+                if(grObj.x == this.x && grObj.y == this.y){
+                    // lösche das grasObj
+                    grassArr.splice(i, 1); // index, wieviele Element löschen
+                    break;
+                }
+            }
+            this.eatCounter++;
+            this.notEatCounter = 0;
+        }else{
+            this.eatCounter = 0;
+            this.notEatCounter++;
+            if(this.notEatCounter >= 5){
+                this.die();
+            }else{
+                this.move();
+            }
+            
+        }
+    }
+
+    die(){
+        matrix[this.y][this.x] = 0;
+        for(let i = 0; i < grazerArr.length; i++){
+            let grasfresserObj = grazerArr[i];
+            if(grasfresserObj.x == this.x && grasfresserObj.y == this.y){
+                grazerArr.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    move(){
+        let emptyFields = this.chooseFields(0);
+        if(emptyFields.length > 0){
+            //
+            let newPos = random(emptyFields);
+            let newX = newPos[0];
+            let newY = newPos[1];
+            matrix[newY][newX] = 2;
+            matrix[this.y][this.x] = 0;
+            this.x = newX;
+            this.y = newY;
+        }
+    }
+
+    mul(){
         
-
-
+        // wenn 5 Runden vorbei 
+        if(this.eatCounter >= 5){
+            // dann vermehren
+            // Schritt1:
+            let emptyFields = this.chooseFields(0);
+            if(emptyFields.length > 0){
+                let newPos = random(emptyFields);
+                let newX = newPos[0];
+                let newY = newPos[1];
+                // Schritt2:
+                grazerArr.push(new Grazer(newX, newY));
+                matrix[newY][newX] = 2;
+            }
+            this.eatCounter = 0;
+        }
     }
 
 
-// essen - eat()
-// vermehren sich - mul()
-// bewegen - move()
-// sterben - die()
-
 }
-
