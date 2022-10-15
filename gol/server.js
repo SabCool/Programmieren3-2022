@@ -4,6 +4,7 @@ const app = express();
 const utils = require('./utils');
 const Grass = require('./grass');
 const Grazer = require('./grazer');
+const Predator = require('./predator');
 
 
 app.listen(3000, function(){
@@ -28,15 +29,15 @@ let fr = 1000;
 
 //Liste der Lebewesen
 grassArr = [];
-let grazerArr = [];
-let predArr = [];
+grazerArr = [];
+predArr = [];
 
 function getRandMatrix(b, h){
     let matrix = [];
     for(let y = 0; y < h; y++){
         matrix[y] = [];
         for(let x = 0; x < b; x++){
-            matrix[y][x] = Math.round(random(0,1));  
+            matrix[y][x] = Math.round(utils.getRandomInt(0,2));  
         }
     }
     return matrix;
@@ -66,19 +67,11 @@ function initGame(){
         grasObj.mul(); 
     }
 
-    // for(let i=0; i< grazerArr.length; i++){
-    //     let grasfresser = grazerArr[i];
-    //     grasfresser.eat();
-    //     grasfresser.mul();
-    // }
-
-    for(let y = 0; y < matrix.length; y++){
-        for(let x = 0; x < matrix[y].length; x++){
-            // zeichnen rect
-            // console.log(matrix[y][x]);
-        }
+    for(let i=0; i< grazerArr.length; i++){
+        let grasfresser = grazerArr[i];
+        grasfresser.eat();
+        grasfresser.mul();
     }
     console.log(matrix);
-
  }
 

@@ -1,9 +1,19 @@
-const LivingCreature = require("./livingCreature");
 const utils = require("./utils");
 
-module.exports = class Grazer extends LivingCreature{
+module.exports = class Predator {
     constructor(x, y){
-        super(x, y);
+        this.x = x;
+        this.y = y;
+        this.neighborPos = [
+            [this.x -1, this.y -1],
+            [this.x, this.y -1],
+            [this.x +1, this.y-1],
+            [this.x-1, this.y],
+            [this.x+1, this.y],
+            [this.x-1, this.y+1],
+            [this.x, this.y+1],
+            [this.x+1, this.y+1]
+        ];
         this.eatCounter = 0;
         this.notEatCounter = 0;
     }
@@ -23,7 +33,18 @@ module.exports = class Grazer extends LivingCreature{
 
     chooseFields(symbol){
         this.updateNeighbors();
-        return super.chooseFields(symbol);
+        let found = [];
+        for(let i = 0; i < this.neighborPos.length; i++){
+            let posArr = this.neighborPos[i];
+            let x = posArr[0];
+            let y = posArr[1];
+            if(x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length){
+                if(matrix[y][x] == symbol){
+                    found.push(posArr);
+                }
+            }
+        }
+        return found;
     }
 
     eat(){
@@ -31,7 +52,7 @@ module.exports = class Grazer extends LivingCreature{
         let grassFields = this.chooseFields(1);
         if(grassFields.length > 0){
             
-            let grassPos = utils.getRandomElementFromArray(grassFields);
+            let grassPos = random(grassFields);
             let newX = grassPos[0];
             let newY = grassPos[1];
             matrix[newY][newX]= 2;
@@ -76,7 +97,7 @@ module.exports = class Grazer extends LivingCreature{
         let emptyFields = this.chooseFields(0);
         if(emptyFields.length > 0){
             //
-            let newPos = utils.getRandomElementFromArray(emptyFields);
+            let newPos = random(emptyFields);
             let newX = newPos[0];
             let newY = newPos[1];
             matrix[newY][newX] = 2;
@@ -94,7 +115,7 @@ module.exports = class Grazer extends LivingCreature{
             // Schritt1:
             let emptyFields = this.chooseFields(0);
             if(emptyFields.length > 0){
-                let newPos = utils.getRandomElementFromArray(emptyFields);
+                let newPos = random(emptyFields);
                 let newX = newPos[0];
                 let newY = newPos[1];
                 // Schritt2:
@@ -104,4 +125,6 @@ module.exports = class Grazer extends LivingCreature{
             this.eatCounter = 0;
         }
     }
+
+
 }
